@@ -1210,9 +1210,6 @@ MonoBehaviour:
   centerPrefab: {fileID: 7572635107061294248, guid: 31a209de9d124184a832158f49a43308,
     type: 3}
   numUnitsPerSpawn: 50
-  moveSpeed: 3
-  destinationReached: 0
-  centerInitialized: 0
 --- !u!4 &2017045607
 Transform:
   m_ObjectHideFlags: 0

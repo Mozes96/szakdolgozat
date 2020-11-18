@@ -11,7 +11,7 @@ public class GridController : MonoBehaviour
 	public GridDebug gridDebug;
     public GameObject center = null;
 
-    private void InitializeFlowField()
+    public void InitializeFlowField()
 	{
         curFlowField = new FlowField(cellRadius, gridSize);
         curFlowField.CreateGrid();
@@ -28,21 +28,12 @@ public class GridController : MonoBehaviour
 	{
 		if (Input.GetMouseButtonDown(0))
 		{
-			InitializeFlowField();
-
-			curFlowField.CreateCostField();
-
-			Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10f);
-			Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(mousePos);
-			Cell destinationCell = curFlowField.GetCellFromWorldPos(worldMousePos);
-			curFlowField.CreateIntegrationField(destinationCell);
-
-			curFlowField.CreateFlowField();
-
-			gridDebug.DrawFlowField();
-		}
+            InitCurFlowField();
+            //Debug.Log("Init curflowfield");
+        }
         if(center != null)
         {
+            //Debug.Log("center initialized");
             InitializeCenterFlowField();
             centerFlowField.CreateCostField();
 
@@ -53,4 +44,19 @@ public class GridController : MonoBehaviour
         }
 
 	}
+    public void InitCurFlowField()
+    {
+        InitializeFlowField();
+
+        curFlowField.CreateCostField();
+
+        Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10f);
+        Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(mousePos);
+        Cell destinationCell = curFlowField.GetCellFromWorldPos(worldMousePos);
+        curFlowField.CreateIntegrationField(destinationCell);
+
+        curFlowField.CreateFlowField();
+
+        gridDebug.DrawFlowField();
+    }
 }
