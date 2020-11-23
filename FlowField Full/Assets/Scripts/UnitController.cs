@@ -4,29 +4,31 @@ using UnityEngine;
 
 public class UnitController : MonoBehaviour
 {
+    // for moving
     public GridController gridController;
     public GameObject unitPrefab;
     public GameObject centerPrefab;
     public int numUnitsPerSpawn;
     private float moveSpeed = 6;
     private Vector3 destinationPos;
+    private List<GameObject> unitsInGame;
 
-    private bool usePathTesting = true;
-
+    // for center following
     private bool destinationReached = false;
     private bool centerInitialized = false;
-    private bool testing = false;
+    int unitsStopped = 0;
+    private double stopDistance = 0.03;
 
+    // for path testing
+    private bool usePathTesting = true;
+    private bool testing = false;
     private List<FlowField> flowFieldCollection;
     private List<double> timeCollection;
     private List<Cell> usedCells;
-    private int testNumber = 3;
+    private int testNumber = 10;
     private List<Vector3> testStartingPos;
     private float deltaTime;
 
-    int unitsStopped = 0;
-
-    private List<GameObject> unitsInGame;
 
 	private void Awake()
 	{
@@ -39,7 +41,7 @@ public class UnitController : MonoBehaviour
 
 	void Update()
 	{
-        if (Input.GetMouseButton(1))
+        if (Input.GetMouseButton(1)) // quit from path testing
         {
             usePathTesting = !usePathTesting;
         }
@@ -57,8 +59,8 @@ public class UnitController : MonoBehaviour
             destinationReached = false;
             if (centerInitialized)
             {
-                    testing = true;
-                foreach (GameObject unit in unitsInGame)
+                testing = true;
+                foreach (GameObject unit in unitsInGame) // set the starting destination for path testing
                 {
                     testStartingPos.Add(unit.transform.position);
                 }
@@ -86,22 +88,23 @@ public class UnitController : MonoBehaviour
 		Vector2Int gridSize = gridController.gridSize;
 		float nodeRadius = gridController.cellRadius;
 		Vector2 maxSpawnPos = new Vector2(gridSize.x * nodeRadius * 2 + nodeRadius, gridSize.y * nodeRadius * 2 + nodeRadius);
-		int colMask = LayerMask.GetMask("Wall", "Units");
+		int colMask = LayerMask.GetMask("Wall", "Units"); // don't spawn points on these colliders
 		Vector3 newPos;
-		for (int i = 0; i < numUnitsPerSpawn; i++)
+		for (int i = 0; i < numUnitsPerSpawn; i++) // spawn units
 		{
 			GameObject newUnit = Instantiate(unitPrefab);
 			newUnit.transform.parent = transform;
 			unitsInGame.Add(newUnit);
-			do
-			{
-				newPos = new Vector3(Random.Range(0, maxSpawnPos.x), 0, Random.Range(0, maxSpawnPos.y));
+
+            do
+            {
+                newPos = new Vector3(Random.Range(0, maxSpawnPos.x), 0, Random.Range(0, maxSpawnPos.y));
                 newUnit.transform.position = newPos;
-			}
-			while (Physics.OverlapSphere(newPos, 0.25f, colMask).Length > 0);
+            }
+            while (Physics.OverlapSphere(newPos, 0.25f, colMask).Length > 0); // look for good position until the unit doesn't collide with a unit or a wall
 		}
 
-        //same for the center
+        // same for the center
         if (!centerInitialized)
         {
             GameObject newCenter = Instantiate(centerPrefab);
@@ -113,9 +116,12 @@ public class UnitController : MonoBehaviour
                 newCenter.transform.position = newPos;
             }
             while (Physics.OverlapSphere(newPos, 0.25f, colMask).Length > 0);
+
             centerInitialized = true;
             gridController.center = newCenter;
         }
+
+        // ignore the collision between units and center
         foreach (GameObject unit in unitsInGame)
         {
             Physics.IgnoreCollision(unit.GetComponent<Collider>(), gridController.center.GetComponent<Collider>());
@@ -123,6 +129,7 @@ public class UnitController : MonoBehaviour
 
     }
 
+    // delete every unit(including center) from the game
 	private void DestroyUnits()
 	{
 		foreach (GameObject go in unitsInGame)
@@ -132,29 +139,34 @@ public class UnitController : MonoBehaviour
 		unitsInGame.Clear();
 	}
 
+    // set the units velocity
     private void unitMoving()
     {
-        
+        // if there isn't flow field or center, than the units won't move
         if (gridController.curFlowField == null || gridController.centerFlowField == null) { return; }
         else
         {
             foreach (GameObject unit in unitsInGame)
             {
-                if (unit.layer == 11)
+                // set destination
+                if (unit.layer == 11) // center unit
                 {
                     destinationPos = gridController.curFlowField.destinationCell.worldPos;
                 }
-                else if (unit.layer == 10)
+                else if (unit.layer == 10) // simple unit
                 {
                     destinationPos = gridController.centerFlowField.destinationCell.worldPos;
                 }
+
                 Cell cellBelow;
                 Vector3 moveDirection = new Vector3(0, 0, 0);
+
+                // set move direction
                 if (unit.layer == 11) // center unit
                 {
                     cellBelow = gridController.curFlowField.GetCellFromWorldPos(unit.transform.position);
                     moveDirection = new Vector3(cellBelow.bestDirection.Vector.x, 0, cellBelow.bestDirection.Vector.y);
-
+                   
                     // save the cell to the list if testing
                     if (testing)
                     {
@@ -175,39 +187,42 @@ public class UnitController : MonoBehaviour
 
                 Rigidbody unitRB = unit.GetComponent<Rigidbody>();
                 
-                if (unitRB.position.x <= destinationPos.x + (float)unitsInGame.Count * 0.02 &&
-                   unitRB.position.x >= destinationPos.x - (float)unitsInGame.Count * 0.02 &&
-                   unitRB.position.z <= destinationPos.z + (float)unitsInGame.Count * 0.02 &&
-                   unitRB.position.z >= destinationPos.z - (float)unitsInGame.Count * 0.02 &&
+                if (unitRB.position.x <= destinationPos.x + (float)unitsInGame.Count * stopDistance &&
+                   unitRB.position.x >= destinationPos.x - (float)unitsInGame.Count * stopDistance &&
+                   unitRB.position.z <= destinationPos.z + (float)unitsInGame.Count * stopDistance &&
+                   unitRB.position.z >= destinationPos.z - (float)unitsInGame.Count * stopDistance &&
                    unit.layer == 10
-                   ) // the Unit is near to the center point
+                   ) // the simple unit is near to the center point
                 {
                     unitRB.velocity = new Vector3(0, 0, 0);
                     unitsStopped = unitsStopped + 1;
                 }
-                else // the Unit can move
+                else // the simple unit can move
                 {
                     unitRB.velocity = moveDirection * moveSpeed;
                 }
             }
-            //Debug.Log("units: " + unitsInGame.Count + "stopped: " + unitsStopped);
-            if (unitsStopped >= unitsInGame.Count &&
+
+            if (unitsStopped >= unitsInGame.Count-1 &&
                 unitsInGame.Count != 0
                 ) // all units reached the destination
             {
-                Debug.Log("destination reached");
-                destinationReached = true;
-                testing = false;
             }
         }
+
+        // reset the stopped units
         unitsStopped = 0;
     }
 
+    // test the possible paths
     private void Testing()
     {
-        if(testNumber <= 0) // test ended
+        // the test ended
+        if(testNumber <= 0)
         {
             testing = false;
+
+            // check the fastest path
             int fastestPos = 0; ;
             double minTime = 99999;
             for(int i = 0; i < timeCollection.Count; i++)
@@ -217,16 +232,21 @@ public class UnitController : MonoBehaviour
                     minTime = timeCollection[i];
                     fastestPos = i;
                 }
+                Debug.Log(timeCollection[i]);
             }
+
+            // set the fastest flowfield for use
             if (fastestPos < flowFieldCollection.Count)
             {
                 gridController.curFlowField = flowFieldCollection[fastestPos];
             }
+            // reset variables
             flowFieldCollection.Clear();
             testStartingPos.Clear();
             moveSpeed = 6;
             destinationReached = true;
-            testNumber = 3;
+            testNumber = 10;
+            usedCells.Clear();
             return;
         }
 
@@ -238,13 +258,14 @@ public class UnitController : MonoBehaviour
         {
             TestRestart();
         }
-        if(deltaTime >= 1) // get into infinite loop
+        if(deltaTime >= 1.5) // get into infinite loop
         {
             TestRestart();
         }
 
     }
 
+    // set everything after a test ended and a new will come
     private void TestRestart()
     {
         //reset the units position
@@ -253,30 +274,26 @@ public class UnitController : MonoBehaviour
             unitsInGame[i].transform.position = testStartingPos[i];
         }
 
-
+        // set global variables
         testNumber -= 1;
-
         timeCollection.Add(deltaTime);
         deltaTime = 0;
 
         Cell destination = gridController.curFlowField.destinationCell;
         flowFieldCollection.Add(gridController.curFlowField);
 
-        foreach (Cell cell in usedCells)
-        {
-            if (cell.bestCost == 0) Debug.Log("dest");
-            gridController.curFlowField.grid[cell.gridIndex.x, cell.gridIndex.y].IncreaseCost(4);
-            gridController.curFlowField.grid[cell.gridIndex.x, cell.gridIndex.y].ResetBestCost();
-        }
+        // initialize new flowfield
+        gridController.InitializeFlowField();
+        gridController.curFlowField.CreateCostField();
 
-        
-        //foreach (Cell c in gridController.curFlowField.grid)
-        //{
-        //    if (c.cost != 1 && c.cost != 4 && c.cost != 255)
-        //        Debug.Log(c.cost);
-        //}
-        gridController.curFlowField.CreateIntegrationField(destination);
+        // increase every cell's cost which was used by the center unit
+        foreach(Cell usedCell in usedCells)
+        {
+            if(usedCell.gridIndex != destination.gridIndex)
+                gridController.curFlowField.grid[usedCell.gridIndex.x, usedCell.gridIndex.y].IncreaseCost(4);
+        }
+        gridController.curFlowField.CreateIntegrationField(gridController.curFlowField.grid[destination.gridIndex.x, destination.gridIndex.y]);
         gridController.curFlowField.CreateFlowField();
-        usedCells.Clear();
+        gridController.gridDebug.DrawFlowField();
     }
 }

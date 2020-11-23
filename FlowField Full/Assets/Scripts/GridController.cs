@@ -26,14 +26,13 @@ public class GridController : MonoBehaviour
 
 	private void Update()
 	{
-		if (Input.GetMouseButtonDown(0))
+		if (Input.GetMouseButtonDown(0)) // left click
 		{
-            InitCurFlowField();
-            //Debug.Log("Init curflowfield");
+            BuildCurFlowField();
         }
         if(center != null)
         {
-            //Debug.Log("center initialized");
+            // rebuild the flow field to the center
             InitializeCenterFlowField();
             centerFlowField.CreateCostField();
 
@@ -44,7 +43,9 @@ public class GridController : MonoBehaviour
         }
 
 	}
-    public void InitCurFlowField()
+
+    // flow field building for the center to follow it
+    public void BuildCurFlowField()
     {
         InitializeFlowField();
 

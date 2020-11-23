@@ -32,8 +32,4 @@ public class Cell
             cost += amnt;
         }
 	}
-    public void ResetBestCost()
-    {
-        bestCost = 60000;
-    }
 }

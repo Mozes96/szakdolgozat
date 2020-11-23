@@ -6,6 +6,17 @@ public class GridDirection
 {
     public readonly Vector2Int Vector;
 
+    // main directions
+    public static readonly GridDirection None = new GridDirection(0, 0);
+    public static readonly GridDirection North = new GridDirection(0, 1);
+    public static readonly GridDirection South = new GridDirection(0, -1);
+    public static readonly GridDirection East = new GridDirection(1, 0);
+    public static readonly GridDirection West = new GridDirection(-1, 0);
+    public static readonly GridDirection NorthEast = new GridDirection(1, 1);
+    public static readonly GridDirection NorthWest = new GridDirection(-1, 1);
+    public static readonly GridDirection SouthEast = new GridDirection(1, -1);
+    public static readonly GridDirection SouthWest = new GridDirection(-1, -1);
+
     private GridDirection(int x, int y)
     {
         Vector = new Vector2Int(x, y);
@@ -20,16 +31,6 @@ public class GridDirection
     {
         return CardinalAndIntercardinalDirections.DefaultIfEmpty(None).FirstOrDefault(direction => direction == vector);
     }
-
-    public static readonly GridDirection None = new GridDirection(0, 0);
-    public static readonly GridDirection North = new GridDirection(0, 1);
-    public static readonly GridDirection South = new GridDirection(0, -1);
-    public static readonly GridDirection East = new GridDirection(1, 0);
-    public static readonly GridDirection West = new GridDirection(-1, 0);
-    public static readonly GridDirection NorthEast = new GridDirection(1, 1);
-    public static readonly GridDirection NorthWest = new GridDirection(-1, 1);
-    public static readonly GridDirection SouthEast = new GridDirection(1, -1);
-    public static readonly GridDirection SouthWest = new GridDirection(-1, -1);
 
     public static readonly List<GridDirection> CardinalDirections = new List<GridDirection>
     {
