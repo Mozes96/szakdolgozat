@@ -43,12 +43,12 @@ public class FlowField
 			bool hasIncreasedCost = false;
 			foreach (Collider col in obstacles)
 			{
-				if (col.gameObject.layer == 8)
+				if (col.gameObject.layer == 8) // wall
 				{
 					curCell.IncreaseCost(255);
 					continue;
 				}
-				else if (!hasIncreasedCost && col.gameObject.layer == 9)
+				else if (!hasIncreasedCost && col.gameObject.layer == 9) // rough terrain
 				{
 					curCell.IncreaseCost(3);
 					hasIncreasedCost = true;
@@ -118,7 +118,7 @@ public class FlowField
 		return neighborCells;
 	}
 
-	private Cell GetCellAtRelativePos(Vector2Int orignPos, Vector2Int relativePos)
+	public Cell GetCellAtRelativePos(Vector2Int orignPos, Vector2Int relativePos)
 	{
 		Vector2Int finalPos = orignPos + relativePos;
 

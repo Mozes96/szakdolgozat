@@ -135,7 +135,7 @@ GameObject:
   - component: {fileID: 228246079}
   m_Layer: 8
   m_Name: Wall (3)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -563,8 +563,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridSize: {x: 40, y: 22}
   cellRadius: 0.5
+  center2DestinationIndex: {x: 0, y: 0}
+  centerDiffVector: {x: 0, y: 0}
   gridDebug: {fileID: 1848782037}
   center: {fileID: 0}
+  center2: {fileID: 0}
 --- !u!4 &835679589
 Transform:
   m_ObjectHideFlags: 0
@@ -770,7 +773,7 @@ GameObject:
   - component: {fileID: 1265622225}
   m_Layer: 8
   m_Name: Wall
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -957,7 +960,7 @@ GameObject:
   - component: {fileID: 1768597155}
   m_Layer: 8
   m_Name: Wall (2)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1067,7 +1070,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridController: {fileID: 835679588}
   displayGrid: 1
-  curDisplayType: 0
+  curDisplayType: 1
 --- !u!4 &1848782038
 Transform:
   m_ObjectHideFlags: 0
@@ -1096,7 +1099,7 @@ GameObject:
   - component: {fileID: 1977795565}
   m_Layer: 8
   m_Name: Wall (1)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1208,6 +1211,10 @@ MonoBehaviour:
   unitPrefab: {fileID: 3866559711115009924, guid: 218a41a6ca8c50242a57fcaa38adf4bb,
     type: 3}
   centerPrefab: {fileID: 7572635107061294248, guid: 31a209de9d124184a832158f49a43308,
+    type: 3}
+  unitPrefab2: {fileID: 4331148713343062906, guid: 6499357192b776945b90c12b27c599de,
+    type: 3}
+  centerPrefab2: {fileID: 5760846493493524102, guid: 9be729a1204084e4e8bd57d563dff924,
     type: 3}
   numUnitsPerSpawn: 50
 --- !u!4 &2017045607
