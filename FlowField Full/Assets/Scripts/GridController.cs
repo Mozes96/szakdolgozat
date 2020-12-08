@@ -4,16 +4,16 @@ using UnityEngine;
 
 public class GridController : MonoBehaviour
 {
-    public Vector2Int gridSize;
-    public float cellRadius = 0.5f;
+    public Vector2Int gridSize; //basic: 40, 22
+    public float cellRadius; // basic 0.5f
 
     public FlowField curFlowField;
     public FlowField centerFlowField;
     public FlowField curFlowField2;
     public FlowField centerFlowField2;
 
-    public Vector2Int center2DestinationIndex;
-    public Vector2Int centerDiffVector;
+    private Vector2Int center2DestinationIndex;
+    private Vector2Int centerDiffVector;
 
 	public GridDebug gridDebug;
     public GameObject center = null;
@@ -71,6 +71,17 @@ public class GridController : MonoBehaviour
             centerFlowField.CreateIntegrationField(destinationCell);
 
             centerFlowField.CreateFlowField();
+
+            // for other center
+            InitializeFlowField2();
+
+            curFlowField2.CreateCostField();
+
+            Cell destinationCell2 = MaskDestination(curFlowField2.GetCellFromWorldPos(center.transform.position));
+
+            curFlowField2.CreateIntegrationField(destinationCell2);
+
+            curFlowField2.CreateFlowField();
         }
         if (center2 != null)
         {
@@ -108,6 +119,15 @@ public class GridController : MonoBehaviour
 
         curFlowField2.CreateCostField();
 
+        Cell destinationCell2 = MaskDestination(destinationCell);
+
+        curFlowField2.CreateIntegrationField(destinationCell2);
+
+        curFlowField2.CreateFlowField();
+    }
+
+    private Cell MaskDestination(Cell destinationCell)
+    {
         // vector from base center to second center
 
         if (centerDiffVector.x == 0 && centerDiffVector.y == 0)
@@ -135,12 +155,7 @@ public class GridController : MonoBehaviour
         else
             maskedcenterDiffVector.y = destinationCell.gridIndex.y + centerDiffVector.y;
 
-        Cell destinationCell2 = curFlowField2.grid[maskedcenterDiffVector.x,maskedcenterDiffVector.y];
-
-
-        curFlowField2.CreateIntegrationField(destinationCell2);
-
-        curFlowField2.CreateFlowField();
+        return curFlowField2.grid[maskedcenterDiffVector.x, maskedcenterDiffVector.y];
     }
 }
 
